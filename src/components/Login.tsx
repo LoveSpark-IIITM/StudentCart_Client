@@ -9,6 +9,7 @@ interface LoginProps {
 
 export function Login({ onLogin }: LoginProps) {
   const [password, setPassword] = useState('');
+  const [email,setEmail]=useState('')
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,7 +17,7 @@ export function Login({ onLogin }: LoginProps) {
     setLoading(true);
 
     try {
-      const { error } = await signIn('kmrsuman2903@gmail.com', password);
+      const { error } = await signIn(email, password);
       if (error) throw error;
       onLogin();
       toast.success('Logged in successfully');
@@ -48,8 +49,9 @@ export function Login({ onLogin }: LoginProps) {
               <input
                 id="email"
                 type="email"
-                value="kmrsuman2903gmail.com"
-                disabled
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
               />
             </div>
