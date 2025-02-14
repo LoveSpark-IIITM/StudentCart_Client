@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { OrderList } from './components/OrderList';
 import { Login } from './components/Login';
 import { Toaster } from 'react-hot-toast';
-import { ShoppingCart, LogOut } from 'lucide-react';
+import { ShoppingCart, LogOut, Menu, X } from 'lucide-react';
 import { setupNotifications } from './lib/notifications';
 import { supabase, signOut } from './lib/supabase';
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -41,29 +42,52 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          {/* Hamburger menu button */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden text-gray-600"
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+
+          {/* Logo (Centered) */}
+          <div className="flex-1 flex justify-center">
             <div className="flex items-center gap-2">
               <ShoppingCart className="w-6 h-6 text-green-600" />
               <h1 className="text-xl font-bold text-gray-900">Grocery Order Management</h1>
             </div>
-            <nav className="flex items-center gap-6">
-              <a href="/" className="text-gray-600 hover:text-gray-900">New Orders</a>
-              <a href="/processing" className="text-gray-600 hover:text-gray-900">Processing</a>
-              <a href="/completed" className="text-gray-600 hover:text-gray-900">Completed</a>
-              <button
-                onClick={async () => {
-                  await signOut();
-                  window.location.href = '/login';
-                }}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <LogOut className="w-4 h-4" />
-                Sign out
-              </button>
-            </nav>
           </div>
+
+          {/* Sign Out Button on Right */}
+          <button
+            onClick={async () => {
+              await signOut();
+              window.location.href = '/login';
+            }}
+            className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden md:inline">Sign out</span>
+          </button>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {menuOpen && (
+          <nav className="md:hidden bg-white shadow-md p-4 flex flex-col gap-4">
+            <Link to="/" className="text-gray-600 hover:text-gray-900">New Orders</Link>
+            <Link to="/processing" className="text-gray-600 hover:text-gray-900">Processing</Link>
+            <Link to="/completed" className="text-gray-600 hover:text-gray-900">Completed</Link>
+          </nav>
+        )}
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-6 px-4 sm:px-6 lg:px-8 py-2">
+          <Link to="/" className="text-gray-600 hover:text-gray-900">New Orders</Link>
+          <Link to="/processing" className="text-gray-600 hover:text-gray-900">Processing</Link>
+          <Link to="/completed" className="text-gray-600 hover:text-gray-900">Completed</Link>
+        </nav>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
